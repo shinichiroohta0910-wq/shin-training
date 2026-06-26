@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<title>Shin トレーニング</title>
+<meta name="theme-color" content="#0f6e56">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="筋トレ">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>
+  :root{
+    --bg:#f2f2f6; --card:#ffffff; --card2:#f7f7fb; --line:#e4e4ea;
+    --t1:#16181d; --t2:#6b6f76; --t3:#9aa0a8;
+    --accent:#0f6e56; --accent-bg:#e1f5ee; --accent-t:#0b5644;
+    --good:#1d9e75; --bad:#d85a30;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#000000; --card:#1c1c1e; --card2:#2c2c2e; --line:#3a3a3c;
+      --t1:#f2f2f7; --t2:#9a9aa0; --t3:#6b6f76;
+      --accent:#3ed3a3; --accent-bg:#0f3b30; --accent-t:#5dcaa5;
+      --good:#3ed3a3; --bad:#ff8a5c;
+    }
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Helvetica Neue",sans-serif;
+    background:var(--bg); color:var(--t1);
+    padding:calc(env(safe-area-inset-top) + 8px) 14px calc(env(safe-area-inset-bottom) + 28px);
+    max-width:560px; margin:0 auto; -webkit-text-size-adjust:100%;
+  }
+  h1{font-size:20px;font-weight:600;margin:6px 0 2px;}
+  .sub{font-size:12px;color:var(--t3);margin:0 0 16px;}
+  .card{background:var(--card);border-radius:16px;padding:16px;margin-bottom:14px;}
+  .lbl{font-size:12px;color:var(--t2);}
+  .row{display:flex;align-items:center;gap:8px;}
+  .seg{display:flex;background:var(--card2);border-radius:10px;padding:3px;gap:3px;margin-bottom:10px;}
+  .seg button{flex:1;border:none;background:transparent;color:var(--t2);font-size:13px;font-weight:600;
+    padding:7px 0;border-radius:8px;font-family:inherit;}
+  .seg button.on{background:var(--card);color:var(--t1);box-shadow:0 1px 3px rgba(0,0,0,.12);}
+  input{font-family:inherit;font-size:16px;border:1px solid var(--line);background:var(--card2);
+    color:var(--t1);border-radius:10px;padding:10px;width:100%;}
+  input:focus{outline:none;border-color:var(--accent);}
+  button.act{background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:15px;
+    font-weight:600;padding:11px 14px;font-family:inherit;}
+  button.act:active{opacity:.8;}
+  .big{font-size:40px;font-weight:700;line-height:1;letter-spacing:-1px;}
+  .barwrap{height:12px;background:var(--card2);border-radius:7px;overflow:hidden;margin:12px 0 6px;}
+  .bar{height:100%;background:var(--accent);border-radius:7px;transition:width .4s;}
+  .mut{font-size:11px;color:var(--t3);}
+  .chk{display:flex;align-items:center;gap:12px;padding:12px 2px;border-top:1px solid var(--line);}
+  .chk:first-of-type{border-top:none;}
+  .chk input{width:24px;height:24px;flex:0 0 24px;accent-color:var(--accent);padding:0;}
+  .chk .nm{flex:1;font-size:15px;}
+  .chk .dt{font-size:12px;color:var(--t2);}
+  .chk.done .nm{text-decoration:line-through;color:var(--t3);}
+  .wk{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;
+    background:var(--card2);margin-bottom:7px;}
+  .wk.today{background:var(--accent-bg);}
+  .dchip{width:26px;height:26px;border-radius:50%;background:var(--card);color:var(--accent);
+    display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex:0 0 26px;}
+  .wk .wl{font-size:14px;font-weight:600;}
+  .wk .ws{font-size:11px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .ghost{background:none;border:1px solid var(--line);color:var(--t2);border-radius:9px;
+    font-size:13px;padding:9px;font-family:inherit;flex:1;}
+  canvas{width:100%!important;}
+  .secttl{font-size:13px;font-weight:600;color:var(--t2);margin:4px 2px 8px;}
+</style>
+</head>
+<body>
+
+<h1>Shin トレーニング</h1>
+<p class="sub">脂肪肝・疲労改善プログラム</p>
+
+<div class="card">
+  <div class="row" style="justify-content:space-between;">
+    <span class="lbl">目標まで</span>
+    <span id="remain" class="lbl" style="color:var(--accent);font-weight:600;">—</span>
+  </div>
+  <div class="row" style="align-items:flex-end;gap:6px;margin-top:6px;">
+    <span id="curw" class="big">84.0</span>
+    <span style="color:var(--t3);font-size:15px;margin-bottom:4px;">kg</span>
+    <span style="margin-left:auto;font-size:13px;color:var(--t2);">目標
+      <input id="goal" type="number" inputmode="decimal" step="0.5" value="76"
+        style="width:64px;display:inline-block;text-align:right;padding:6px;font-size:14px;"> kg</span>
+  </div>
+  <div class="barwrap"><div id="bar" class="bar" style="width:0%"></div></div>
+  <div class="row" style="justify-content:space-between;">
+    <span class="mut">開始 <span id="startlbl">84.0</span>kg</span>
+    <span id="goallbl" class="mut">目標 76.0kg</span>
+  </div>
+</div>
+
+<div class="card">
+  <div class="seg" id="chartseg">
+    <button data-v="w" class="on">体重</button>
+    <button data-v="c">バイク kcal</button>
+    <button data-v="k">距離 km</button>
+  </div>
+  <canvas id="chart" height="200"></canvas>
+  <p id="chartnote" class="mut" style="text-align:center;margin:8px 0 0;">記録を入れるとグラフが伸びていきます</p>
+</div>
+
+<div class="card">
+  <div class="secttl">記録する（日付：<span id="todaydate"></span>）</div>
+  <div class="lbl" style="margin-bottom:5px;">体重</div>
+  <div class="row" style="margin-bottom:12px;">
+    <input id="winput" type="number" inputmode="decimal" step="0.1" placeholder="84.0">
+    <button class="act" id="wsave">保存</button>
+  </div>
+  <div class="lbl" style="margin-bottom:5px;">バイク（消費kcal / 距離km）</div>
+  <div class="row">
+    <input id="bcal" type="number" inputmode="numeric" placeholder="kcal">
+    <input id="bkm" type="number" inputmode="decimal" step="0.1" placeholder="km">
+    <button class="act" id="bsave">保存</button>
+  </div>
+  <p id="logmsg" class="mut" style="margin:10px 0 0;">&nbsp;</p>
+</div>
+
+<div class="card">
+  <div class="row" style="justify-content:space-between;margin-bottom:4px;">
+    <span class="secttl" style="margin:0;">今日のメニュー</span>
+    <span id="todaylbl" class="lbl"></span>
+  </div>
+  <div id="today"></div>
+</div>
+
+<div class="card">
+  <div class="secttl">週間スケジュール</div>
+  <div id="week"></div>
+</div>
+
+<div class="card">
+  <div class="secttl">データ</div>
+  <div class="row">
+    <button class="ghost" id="export">バックアップ書き出し</button>
+    <button class="ghost" id="reset">記録をリセット</button>
+  </div>
+  <p class="mut" style="margin:10px 0 0;">記録はこの端末（ブラウザ）に保存されます。機種変更時はバックアップを取ってください。</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+(function(){
+  var START=84.0;
+  var NAMES=['日','月','火','水','木','金','土'];
+  var MENU={
+    0:{label:'休養・ストレッチ',rest:true,items:[['軽いストレッチ / 散歩','15分']]},
+    1:{label:'バイク + 下半身',items:[['マグネティックバイク 中強度','45分'],['フルスクワット','15〜20回 × 3セット']]},
+    2:{label:'上半身 + 体幹',items:[['腕立て伏せ','限界まで × 3セット'],['腹筋ローラー（膝コロ）','8〜12回 × 3セット'],['プランク','30〜45秒 × 3セット']]},
+    3:{label:'バイク（回復）',items:[['マグネティックバイク 軽め','30〜45分']]},
+    4:{label:'下半身 + 上半身',items:[['フルスクワット','15〜20回 × 3セット'],['腕立て伏せ','限界まで × 3セット']]},
+    5:{label:'バイク + 体幹',items:[['マグネティックバイク 中強度','45分'],['腹筋ローラー（膝コロ）','8〜12回 × 3セット']]},
+    6:{label:'バイク + ストレッチ',items:[['マグネティックバイク or 全身軽め','30〜40分'],['ストレッチ','10分']]}
+  };
+  function g(id){return document.getElementById(id);}
+  function get(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v);}catch(e){return d;}}
+  function set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+  function pad(n){return n<10?'0'+n:''+n;}
+  function dkey(dt){dt=dt||new Date();return dt.getFullYear()+'-'+pad(dt.getMonth()+1)+'-'+pad(dt.getDate());}
+  function mmdd(s){var p=s.split('-');return p[1]+'/'+p[2];}
+
+  function weights(){return get('shin_weights',[]);}
+  function bikes(){return get('shin_bikes',[]);}
+  function goal(){return get('shin_goal',76);}
+  function curWeight(){var w=weights();return w.length?w[w.length-1].kg:START;}
+
+  function upsert(arr,d,obj){
+    for(var i=0;i<arr.length;i++){if(arr[i].d===d){Object.assign(arr[i],obj);return arr;}}
+    arr.push(Object.assign({d:d},obj));
+    arr.sort(function(a,b){return a.d<b.d?-1:1;});
+    return arr;
+  }
+
+  function renderGoal(){
+    var cw=curWeight(), gl=goal();
+    g('curw').textContent=cw.toFixed(1);
+    g('goal').value=gl;
+    g('startlbl').textContent=START.toFixed(1);
+    g('goallbl').textContent='目標 '+gl.toFixed(1)+'kg';
+    var total=START-gl, done=START-cw;
+    var pct=total<=0?0:Math.max(0,Math.min(100,done/total*100));
+    g('bar').style.width=pct.toFixed(0)+'%';
+    var rem=cw-gl, el=g('remain');
+    if(rem<=0){el.textContent='達成！ 🎯';el.style.color='var(--good)';}
+    else{el.textContent='あと '+rem.toFixed(1)+'kg（'+pct.toFixed(0)+'%）';el.style.color='var(--accent)';}
+  }
+
+  var chart=null, chartView='w';
+  function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+  function renderChart(){
+    if(typeof Chart==='undefined')return;
+    var ctx=g('chart').getContext('2d');
+    var view=chartView, data, labels, color=css('--accent'), note='';
+    if(view==='w'){
+      var w=weights(); labels=w.map(function(x){return mmdd(x.d);});
+      data=w.map(function(x){return x.kg;});
+      note=w.length<2?'体重を2回以上記録すると推移が見えます':'';
+    }else{
+      var b=bikes();
+      labels=b.map(function(x){return mmdd(x.d);});
+      data=b.map(function(x){return view==='c'?Number(x.cal||0):Number(x.km||0);});
+      color=view==='c'?css('--bad'):css('--accent');
+      note=b.length<1?'バイクを記録すると表示されます':'';
+    }
+    g('chartnote').textContent=note;
+    var ds=[{label:view==='w'?'体重':view==='c'?'kcal':'km',data:data,borderColor:color,
+      backgroundColor:color,tension:.3,pointRadius:3,pointBackgroundColor:color,
+      borderWidth:2,fill:false,spanGaps:true}];
+    var annoGoal=null;
+    if(view==='w'){annoGoal=goal();}
+    var grid=css('--line'), tcol=css('--t2');
+    if(chart)chart.destroy();
+    chart=new Chart(ctx,{
+      type:'line',
+      data:{labels:labels,datasets:ds},
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},
+          tooltip:{callbacks:{label:function(c){return c.parsed.y+(view==='w'?' kg':view==='c'?' kcal':' km');}}}},
+        scales:{
+          x:{grid:{display:false},ticks:{color:tcol,maxRotation:0,autoSkip:true,maxTicksLimit:6,font:{size:11}}},
+          y:{grid:{color:grid},ticks:{color:tcol,font:{size:11}},
+             suggestedMin:view==='w'&&data.length?Math.min.apply(null,data.concat([goal()]))-1:undefined,
+             suggestedMax:view==='w'&&data.length?Math.max.apply(null,data.concat([START]))+1:undefined}
+        }
+      }
+    });
+    if(view==='w' && annoGoal!=null){
+      var goalLine={id:'gl',afterDraw:function(ch){
+        var y=ch.scales.y.getPixelForValue(annoGoal);
+        if(isNaN(y))return;
+        var a=ch.chartArea, cx=ch.ctx;
+        cx.save();cx.strokeStyle=css('--good');cx.setLineDash([5,4]);cx.lineWidth=1.2;
+        cx.beginPath();cx.moveTo(a.left,y);cx.lineTo(a.right,y);cx.stroke();
+        cx.setLineDash([]);cx.fillStyle=css('--good');cx.font='11px -apple-system';
+        cx.fillText('目標 '+annoGoal+'kg',a.left+4,y-4);cx.restore();
+      }};
+      chart.config.plugins=[goalLine];chart.update();
+    }
+  }
+
+  function renderToday(){
+    var dow=new Date().getDay(), m=MENU[dow];
+    g('todaylbl').textContent=NAMES[dow]+'曜 ・ '+m.label;
+    var checks=get('shin_checks',{}), tk=dkey();
+    var html='';
+    if(m.rest){html+='<div style="color:var(--t2);font-size:14px;padding:6px 2px;">休養日 — 体を回復させましょう 🛌</div>';}
+    m.items.forEach(function(it,i){
+      var key=tk+'_'+i, on=!!checks[key];
+      html+='<label class="chk'+(on?' done':'')+'"><input type="checkbox" data-k="'+key+'" '+(on?'checked':'')+'>'
+        +'<span class="nm">'+it[0]+'</span><span class="dt">'+it[1]+'</span></label>';
+    });
+    g('today').innerHTML=html;
+    g('today').querySelectorAll('input').forEach(function(cb){
+      cb.addEventListener('change',function(){
+        var c=get('shin_checks',{}); c[cb.dataset.k]=cb.checked; set('shin_checks',c); renderToday();
+      });
+    });
+  }
+
+  function renderWeek(){
+    var dow=new Date().getDay(), order=[1,2,3,4,5,6,0], html='';
+    order.forEach(function(i){
+      var m=MENU[i], is=(i===dow);
+      var sub=m.items.map(function(x){return x[0].replace(/（.*?）/,'');}).join(' / ');
+      html+='<div class="wk'+(is?' today':'')+'"><span class="dchip">'+NAMES[i]+'</span>'
+        +'<div style="flex:1;min-width:0;"><div class="wl">'+m.label+'</div><div class="ws">'+sub+'</div></div>'
+        +(is?'<span style="font-size:11px;color:var(--accent);font-weight:700;">今日</span>':'')+'</div>';
+    });
+    g('week').innerHTML=html;
+  }
+
+  // events
+  g('goal').addEventListener('change',function(){var v=parseFloat(this.value);if(!isNaN(v)){set('shin_goal',v);renderGoal();renderChart();}});
+  g('wsave').addEventListener('click',function(){
+    var v=parseFloat(g('winput').value);
+    if(isNaN(v)){g('logmsg').textContent='体重を入力してください';return;}
+    var prev=curWeight(); set('shin_weights',upsert(weights(),dkey(),{kg:v}));
+    var diff=v-prev;
+    g('logmsg').textContent='体重 '+v.toFixed(1)+'kg を記録'+(weights().length>1?'（'+(diff<0?'▼':diff>0?'▲':'±')+Math.abs(diff).toFixed(1)+'kg）':'');
+    g('winput').value=''; renderGoal(); renderChart();
+  });
+  g('bsave').addEventListener('click',function(){
+    var c=g('bcal').value, k=g('bkm').value;
+    if(!c&&!k){g('logmsg').textContent='kcal か km を入力してください';return;}
+    set('shin_bikes',upsert(bikes(),dkey(),{cal:c?Number(c):0,km:k?Number(k):0}));
+    g('logmsg').textContent='バイク '+(c?c+'kcal ':'')+(k?k+'km':'')+' を記録';
+    g('bcal').value='';g('bkm').value=''; renderChart();
+  });
+  g('chartseg').querySelectorAll('button').forEach(function(b){
+    b.addEventListener('click',function(){
+      chartView=b.dataset.v;
+      g('chartseg').querySelectorAll('button').forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on'); renderChart();
+    });
+  });
+  g('export').addEventListener('click',function(){
+    var dump={weights:weights(),bikes:bikes(),goal:goal(),checks:get('shin_checks',{})};
+    var blob=new Blob([JSON.stringify(dump,null,2)],{type:'application/json'});
+    var url=URL.createObjectURL(blob), a=document.createElement('a');
+    a.href=url; a.download='shin-training-backup-'+dkey()+'.json'; a.click();
+    setTimeout(function(){URL.revokeObjectURL(url);},1000);
+  });
+  g('reset').addEventListener('click',function(){
+    if(confirm('すべての記録を消去します。よろしいですか？')){
+      ['shin_weights','shin_bikes','shin_checks'].forEach(function(k){localStorage.removeItem(k);});
+      renderGoal();renderChart();renderToday();g('logmsg').textContent='記録をリセットしました';
+    }
+  });
+
+  g('todaydate').textContent=mmdd(dkey());
+  renderGoal(); renderToday(); renderWeek();
+  if(typeof Chart!=='undefined'){renderChart();}
+  else{window.addEventListener('load',renderChart);}
+
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  }
+})();
+</script>
+</body>
+</html>
