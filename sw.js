@@ -1,4 +1,4 @@
-var CACHE='shin-training-v1';
+var CACHE='shin-training-v2';
 var ASSETS=[
   './','./index.html','./manifest.webmanifest',
   './icon-180.png','./icon-192.png','./icon-512.png',
